@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+// ... (rest of the styled components remain the same)
 
 export const Container = styled.div`
   background-color: #ffffff;
@@ -10,31 +11,16 @@ export const Container = styled.div`
 
 export const FilterContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 20px;
 `;
 
-export const StatusFilter = styled.select`
-  width: 150px;
-  padding: 8px 12px;
-  height: 43px;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  
-  font-size: 14px;
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
-
-
 export const SearchInput = styled.input`
-  width: 80%;
+  width: 70%;
   padding: 8px 12px;
   padding-left: 36px;
-  height: 30px;
+  height: 40px;
   border: 1px solid #e2e8f0;
   border-radius: 40px;
   font-size: 14px;
@@ -44,6 +30,27 @@ export const SearchInput = styled.input`
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
+
+export const BubbleContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+//#3b82f6 #f3f4f6
+
+export const BubbleFilter = styled.button`
+  background-color: ${props => props.active ? '#000000' : '#ffffff'};
+  color: ${props => props.active ? 'white' : '#000000'};
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width:120px;
+`;
+
 
 export const Table = styled.table`
   width: 100%;

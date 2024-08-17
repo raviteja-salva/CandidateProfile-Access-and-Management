@@ -1,26 +1,30 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  font-family: Arial, sans-serif;
-  padding: 50px;
-  background-color: #E2EAF4;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 `;
 
 export const Heading = styled.h1`
-  text-align: center;
-`;
-
-
-export const TabContainer = styled.div`
-  display: flex;
+  font-size: 24px;
+  font-weight: bold;
   margin-bottom: 20px;
+  color: #333;
 `;
 
-export const Tab = styled.button`
-  padding: 10px 20px;
-  background-color: ${props => props.active ? '#4CAF50' : '#f1f1f1'};
-  color: ${props => props.active ? 'white' : 'black'};
+export const ShortlistToggle = styled.button`
+  background-color: #3b82f6;
+  color: white;
   border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
   cursor: pointer;
-  margin-right: 10px;
+  transition: background-color 0.2s ease;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #2563eb;
+  }
 `;

@@ -1,30 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { Container, FilterContainer, StatusFilter, SearchInput, Table, TableHead, TableHeader, TableCell, TableRow, ViewProfileButton, ShortlistedIndicator, StatusDropdown, EmptyMessage } from './styledComponents.js';
-import Pagination from '../Pagination'; // Import the new Pagination component
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  Container,
+  FilterContainer,
+  SearchInput,
+  Table,
+  TableHead,
+  TableHeader,
+  TableCell,
+  TableRow,
+  ViewProfileButton,
+  ShortlistedIndicator,
+  StatusDropdown,
+  EmptyMessage,
+  BubbleContainer,
+  BubbleFilter
+} from './styledComponents.js';
+import Pagination from '../Pagination';
 
 const CandidateTable = ({ candidates, onCandidateClick, shortlistedCandidates, candidateStatuses, onStatusUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [activeFilters, setActiveFilters] = useState(['All']);
   const [filteredCandidates, setFilteredCandidates] = useState(candidates);
   const [currentPage, setCurrentPage] = useState(1);
   const candidatesPerPage = 10;
 
-  useEffect(() => {
-    const filtered = candidates.filter((candidate) => {
+  const statusOptions = useMemo(() => ['All', 'Under Review', 'Interview Scheduled', 'Shortlisted', 'Rejected', 'Hired'], []);
+
+  const filterCandidates = useCallback(() => {
+    return candidates.filter((candidate) => {
       const nameMatch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase());
       const candidateStatus = candidateStatuses[candidate.id] || 'Under Review';
-      const statusMatch = statusFilter === 'All' || candidateStatus === statusFilter;
+      const statusMatch = activeFilters.includes('All') || activeFilters.includes(candidateStatus);
       return nameMatch && statusMatch;
     });
+  }, [candidates, searchTerm, activeFilters, candidateStatuses]);
+
+  useEffect(() => {
+    const filtered = filterCandidates();
     setFilteredCandidates(filtered);
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, candidates, candidateStatuses]);
+  }, [filterCandidates]);
 
-  const statusOptions = ['All', 'Under Review', 'Next Round', 'Technical Round', 'HR Round', 'Final Round', 'Rejected', 'Hired'];
-
-  const handleStatusChange = (candidateId, newStatus) => {
+  const handleStatusChange = useCallback((candidateId, newStatus) => {
     onStatusUpdate(candidateId, newStatus);
-  };
+  }, [onStatusUpdate]);
+
+  const toggleFilter = useCallback((filter) => {
+    setActiveFilters((prevFilters) => {
+      if (filter === 'All') {
+        return ['All'];
+      }
+      const newFilters = prevFilters.includes(filter)
+        ? prevFilters.filter((f) => f !== filter)
+        : [...prevFilters.filter((f) => f !== 'All'), filter];
+      return newFilters.length === 0 ? ['All'] : newFilters;
+    });
+  }, []);
 
   const indexOfLastCandidate = currentPage * candidatesPerPage;
   const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
@@ -32,9 +63,9 @@ const CandidateTable = ({ candidates, onCandidateClick, shortlistedCandidates, c
 
   const totalPages = Math.ceil(filteredCandidates.length / candidatesPerPage);
 
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = useCallback((pageNumber) => {
     setCurrentPage(pageNumber);
-  };
+  }, []);
 
   return (
     <Container>
@@ -45,16 +76,17 @@ const CandidateTable = ({ candidates, onCandidateClick, shortlistedCandidates, c
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <StatusFilter
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
+        <BubbleContainer>
           {statusOptions.map((status) => (
-            <option key={status} value={status}>
+            <BubbleFilter
+              key={status}
+              active={activeFilters.includes(status)}
+              onClick={() => toggleFilter(status)}
+            >
               {status}
-            </option>
+            </BubbleFilter>
           ))}
-        </StatusFilter>
+        </BubbleContainer>
       </FilterContainer>
       {currentCandidates.length > 0 ? (
         <>
@@ -113,7 +145,12 @@ const CandidateTable = ({ candidates, onCandidateClick, shortlistedCandidates, c
   );
 };
 
-export default CandidateTable;
+export default React.memo(CandidateTable);
+
+
+
+
+
 
 
 
@@ -122,8 +159,8 @@ export default CandidateTable;
 
 
 // import React, { useState, useEffect } from 'react';
-// import { GrLinkPrevious , GrLinkNext } from "react-icons/gr";
-// import {Container, FilterContainer, StatusFilter, SearchInput, Table, TableHead, TableHeader, TableCell, TableRow, ViewProfileButton, ShortlistedIndicator, StatusDropdown, PaginationContainer, PageButton , EmptyMessage} from './styledComponents.js';
+// import { Container, FilterContainer, StatusFilter, SearchInput, Table, TableHead, TableHeader, TableCell, TableRow, ViewProfileButton, ShortlistedIndicator, StatusDropdown, EmptyMessage } from './styledComponents.js';
+// import Pagination from '../Pagination'; // Import the new Pagination component
 
 // const CandidateTable = ({ candidates, onCandidateClick, shortlistedCandidates, candidateStatuses, onStatusUpdate }) => {
 //   const [searchTerm, setSearchTerm] = useState('');
@@ -140,24 +177,24 @@ export default CandidateTable;
 //       return nameMatch && statusMatch;
 //     });
 //     setFilteredCandidates(filtered);
-//     setCurrentPage(1); 
+//     setCurrentPage(1);
 //   }, [searchTerm, statusFilter, candidates, candidateStatuses]);
 
-//   const statusOptions = ['All', 'Under Review', 'Next Round', 'Technical Round', 'HR Round' , 'Final Round' , 'Rejected', 'Hired'];
+//   const statusOptions = ['All', 'Under Review', 'Interview Scheduled' ,'Shortlisted', 'Rejected', 'Hired'];
 
 //   const handleStatusChange = (candidateId, newStatus) => {
 //     onStatusUpdate(candidateId, newStatus);
 //   };
 
-  
 //   const indexOfLastCandidate = currentPage * candidatesPerPage;
 //   const indexOfFirstCandidate = indexOfLastCandidate - candidatesPerPage;
 //   const currentCandidates = filteredCandidates.slice(indexOfFirstCandidate, indexOfLastCandidate);
 
-//   const pageNumbers = [];
-//   for (let i = 1; i <= Math.ceil(filteredCandidates.length / candidatesPerPage); i++) {
-//     pageNumbers.push(i);
-//   }
+//   const totalPages = Math.ceil(filteredCandidates.length / candidatesPerPage);
+
+//   const handlePageChange = (pageNumber) => {
+//     setCurrentPage(pageNumber);
+//   };
 
 //   return (
 //     <Container>
@@ -223,29 +260,11 @@ export default CandidateTable;
 //               ))}
 //             </tbody>
 //           </Table>
-//           <PaginationContainer>
-//             <PageButton
-//               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-//               disabled={currentPage === 1}
-//             >
-//               <GrLinkPrevious />
-//             </PageButton>
-//             {pageNumbers.map(number => (
-//               <PageButton
-//                 key={number}
-//                 onClick={() => setCurrentPage(number)}
-//                 active={currentPage === number}
-//               >
-//                 {number}
-//               </PageButton>
-//             ))}
-//             <PageButton
-//               onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageNumbers.length))}
-//               disabled={currentPage === pageNumbers.length}
-//             >
-//               <GrLinkNext />
-//             </PageButton>
-//           </PaginationContainer>
+//           <Pagination
+//             currentPage={currentPage}
+//             totalPages={totalPages}
+//             onPageChange={handlePageChange}
+//           />
 //         </>
 //       ) : (
 //         <EmptyMessage>No candidates match your search criteria. Please try adjusting your filters.</EmptyMessage>
